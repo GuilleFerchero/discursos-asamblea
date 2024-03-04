@@ -23,6 +23,9 @@ A continuación vamos a ver un breve análisis de texto acerca de los primeros d
 
 ```{r inicio}
 #| echo: false
+#| warnning: false
+
+
 rm(list =ls())
 
 
@@ -42,7 +45,7 @@ for( package in c("tm", "tidyverse",
 
 sdal <- read.csv('data/sdal.csv', encoding = 'UTF-8')
 
-palabras_inutiles <- c("aplausos")
+palabras_inutiles <- c("aplausos","si","ser","vez","cada")
 
 ```
 
@@ -127,35 +130,69 @@ GRAFICOS DESCRIPTIVOS
 discursostodos <- rbind(palabras1,palabras2,palabras3)
 palabrastodos <- rbind(palabras1.1,palabras2.1,palabras3.1)
 
-Tabla_8 <- discursostodos %>% 
+Tabla_1 <- discursostodos %>% 
   select(Autor) %>% 
   group_by(Autor) %>% 
   summarise(palabras=n()) %>% 
   arrange(Autor)
 
 
-Grafico8 <-  highchart() %>% 
+Grafico1 <-  highchart() %>% 
   hc_title(text="Cantidad de Palabras")%>%
   hc_chart(type="bar") %>%
-  hc_xAxis(categories = Tabla_8$Autor) %>%
-  hc_add_series(Tabla_8$palabras, name="Palabras") %>% 
+  hc_xAxis(categories = Tabla_1$Autor) %>%
+  hc_add_series(Tabla_1$palabras, name="Palabras") %>% 
   hc_plotOptions(
     bar = list(
       colorByPoint = TRUE,
       colors = c("steelblue","gold","#7570b3")
     )) %>% 
-  hc_credits(enabled = TRUE, text = "Elaboración propia en base a datos de  Casa Rosada.")
+  hc_credits(enabled = TRUE, text = "Elaboración propia en base a datos de  Casa Rosada.") %>% 
+  hc_legend(FALSE) 
 
-Grafico8
+Grafico1
+
+
+
+
+
 ```
 
 ```{r}
 #| echo: false
 #| warning: false
 
-#nube de palabras discurso 1
+#nube de palabras discurso 1 (MILEI)
 
 wordcloud(palabras1.1$word,palabras1.1$n,scale=c(4,.1),random.order=FALSE,random.color=TRUE,rot.per=0.4,colors= c("#54007d"))
+```
+
+```{r}
+#| echo: false
+#| warning: false
+
+#TOP 10 discurso 1 (MILEI)
+
+Tabla_2 <- palabras1.1 %>% 
+  select(!Autor) %>% 
+  head(10)
+
+Grafico2 <- highchart() %>%   
+  hc_title(text="Top 10 palabras más utilizadas por Milei")%>%
+  hc_chart(type="bar") %>%
+  hc_xAxis(categories = Tabla_2$word) %>%
+  hc_add_series(Tabla_2$n, name="Palabras") %>% 
+  hc_plotOptions(
+    bar = list(
+      colorByPoint = TRUE
+    )) %>% 
+  hc_credits(enabled = TRUE, text = "Elaboración propia en base a datos de  Casa Rosada.") %>% 
+  hc_colors(color="#7570b3") %>% 
+  hc_legend(FALSE)
+  
+Grafico2
+
+
 ```
 
 ```{r}
@@ -165,6 +202,35 @@ wordcloud(palabras1.1$word,palabras1.1$n,scale=c(4,.1),random.order=FALSE,random
 #nube de palabras discurso 2
 
 wordcloud(palabras2.1$word,palabras1.1$n,scale=c(4,.1),random.order=FALSE,random.color=TRUE,rot.per=0.4,colors= c("#44c2fd"))
+
+```
+
+```{r}
+#| echo: false
+#| warning: false
+
+#TOP 10 discurso 2 (FERNANDEZ)
+
+Tabla_3 <- palabras2.1 %>% 
+  select(!Autor) %>% 
+  head(10)
+
+Grafico3 <- highchart() %>%   
+  hc_title(text="Top 10 palabras más utilizadas por Fernandez")%>%
+  hc_chart(type="bar") %>%
+  hc_xAxis(categories = Tabla_3$word) %>%
+  hc_add_series(Tabla_3$n, name="Palabras") %>% 
+  hc_plotOptions(
+    bar = list(
+      colorByPoint = TRUE
+    )) %>% 
+  hc_credits(enabled = TRUE, text = "Elaboración propia en base a datos de  Casa Rosada.") %>% 
+  hc_colors(color="#44c2fd") %>% 
+  hc_legend(FALSE)
+  
+Grafico3
+
+
 ```
 
 ```{r}
@@ -175,3 +241,33 @@ wordcloud(palabras2.1$word,palabras1.1$n,scale=c(4,.1),random.order=FALSE,random
 
 wordcloud(palabras3.1$word,palabras1.1$n,scale=c(4,.1),random.order=FALSE,random.color=TRUE,rot.per=0.4,colors= c("gold"))
 ```
+
+```{r}
+#| echo: false
+#| warning: false
+
+#TOP 10 discurso 3 (MACRI)
+
+Tabla_4 <- palabras3.1 %>% 
+  select(!Autor) %>% 
+  head(10)
+
+Grafico4 <- highchart() %>%   
+  hc_title(text="Top 10 palabras más utilizadas por Macri")%>%
+  hc_chart(type="bar") %>%
+  hc_xAxis(categories = Tabla_4$word) %>%
+  hc_add_series(Tabla_4$n, name="Palabras") %>% 
+  hc_plotOptions(
+    bar = list(
+      colorByPoint = TRUE
+    )) %>% 
+  hc_credits(enabled = TRUE, text = "Elaboración propia en base a datos de  Casa Rosada.") %>% 
+  hc_colors(color="gold") %>% 
+  hc_legend(FALSE)
+  
+Grafico4
+
+
+```
+
+##Análisis de sentimiento
