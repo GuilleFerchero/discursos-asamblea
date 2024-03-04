@@ -1,0 +1,177 @@
+---
+title: "Análisis de discurso"
+author: "Guille Ferchero"
+format: html
+editor: visual
+---
+
+## Discursos inaugurales
+
+A continuación vamos a ver un breve análisis de texto acerca de los primeros discursos inaugurales de Asambleas Legislativas de Macri, Fernandez y Milei.
+
+## Ideas
+
+-   Visualizar las palabras más utilizadas
+
+-   Contar y comparar frecuencia y cantidad de palabras
+
+-   Analizar sentimientos
+
+## Fuentes
+
+-   https://www.casarosada.gob.ar/informacion/discursos
+
+```{r inicio}
+#| echo: false
+rm(list =ls())
+
+
+for( package in c("tm", "tidyverse",
+                  "ggwordcloud","proustr",
+                  "syuzhet","SnowballC",
+                  "knitr","kableExtra",
+                  "tidytext","highcharter",
+                  "wordcloud","ggtern")) {
+  
+  if (!require(package, character.only = T, quietly = T)) {
+    install.packages(package, repos = "http://cran.us.r-project.org")
+    library(package, character.only = T)
+  }
+}
+
+
+sdal <- read.csv('data/sdal.csv', encoding = 'UTF-8')
+
+palabras_inutiles <- c("aplausos")
+
+```
+
+You can add options to executable code like this
+
+```{r data}
+#| echo: false
+
+##################################MILEI############################################
+
+Disc_Milei <- read.table("data/Discurso Milei.txt", sep="\r", encoding = "UTF-8")
+
+Base_Milei <- as.data.frame(Disc_Milei)
+Base_Milei$V1 <- as.character(Base_Milei$V1)
+palabras1 <- Base_Milei %>% 
+  unnest_tokens(palabra, V1)%>% 
+  mutate(Autor = "Milei")
+
+cantdMilei <- nrow(palabras1)
+
+palabras1.1 <- palabras1 %>% 
+count(palabra, sort=TRUE) %>%
+    filter(!palabra%in%stopwords('es')) %>%
+    filter(!palabra%in%palabras_inutiles) %>%
+    filter(str_detect(palabra, "^[a-zA-z]|^#|^@"))%>%
+    arrange(desc(n)) %>% 
+    rename('word'=palabra)%>% 
+    mutate(Autor = "Milei")
+
+##################################FERNANDEZ############################################
+
+Disc_Fernandez <- read.table("data/Discurso Fernandez.txt", sep="\r", encoding = "UTF-8")
+
+Base_Fernandez <- as.data.frame(Disc_Fernandez)
+Base_Fernandez$V1 <- as.character(Base_Fernandez$V1)
+palabras2 <- Base_Fernandez %>% 
+  unnest_tokens(palabra, V1)%>% 
+  mutate(Autor = "Fernandez")
+
+cantdMilei <- nrow(palabras2)
+
+palabras2.1 <- palabras2 %>% 
+count(palabra, sort=TRUE) %>%
+    filter(!palabra%in%stopwords('es')) %>%
+    filter(!palabra%in%palabras_inutiles) %>%
+    filter(str_detect(palabra, "^[a-zA-z]|^#|^@"))%>%
+    arrange(desc(n)) %>% 
+    rename('word'=palabra)%>% 
+    mutate(Autor = "Fernandez")
+
+##################################MACRI############################################
+
+Disc_Macri <- read.table("data/Discurso Macri.txt", sep="\r", encoding = "UTF-8")
+
+Base_Macri <- as.data.frame(Disc_Macri)
+Base_Macri$V1 <- as.character(Base_Macri$V1)
+palabras3 <- Base_Macri %>% 
+  unnest_tokens(palabra, V1)%>% 
+  mutate(Autor = "Macri")
+
+cantdMilei <- nrow(palabras3)
+
+palabras3.1 <- palabras3 %>% 
+count(palabra, sort=TRUE) %>%
+    filter(!palabra%in%stopwords('es')) %>%
+    filter(!palabra%in%palabras_inutiles) %>%
+    filter(str_detect(palabra, "^[a-zA-z]|^#|^@"))%>%
+    arrange(desc(n)) %>% 
+    rename('word'=palabra)%>% 
+    mutate(Autor = "Macri")
+
+
+```
+
+GRAFICOS DESCRIPTIVOS
+
+```{r}
+
+
+#graficos descriptivos
+
+discursostodos <- rbind(palabras1,palabras2,palabras3)
+palabrastodos <- rbind(palabras1.1,palabras2.1,palabras3.1)
+
+Tabla_8 <- discursostodos %>% 
+  select(Autor) %>% 
+  group_by(Autor) %>% 
+  summarise(palabras=n()) %>% 
+  arrange(Autor)
+
+
+Grafico8 <-  highchart() %>% 
+  hc_title(text="Cantidad de Palabras")%>%
+  hc_chart(type="bar") %>%
+  hc_xAxis(categories = Tabla_8$Autor) %>%
+  hc_add_series(Tabla_8$palabras, name="Palabras") %>% 
+  hc_plotOptions(
+    bar = list(
+      colorByPoint = TRUE,
+      colors = c("steelblue","gold","#7570b3")
+    )) %>% 
+  hc_credits(enabled = TRUE, text = "Elaboración propia en base a datos de  Casa Rosada.")
+
+Grafico8
+```
+
+```{r}
+#| echo: false
+#| warning: false
+
+#nube de palabras discurso 1
+
+wordcloud(palabras1.1$word,palabras1.1$n,scale=c(4,.1),random.order=FALSE,random.color=TRUE,rot.per=0.4,colors= c("#54007d"))
+```
+
+```{r}
+#| echo: false
+#| warning: false
+
+#nube de palabras discurso 2
+
+wordcloud(palabras2.1$word,palabras1.1$n,scale=c(4,.1),random.order=FALSE,random.color=TRUE,rot.per=0.4,colors= c("#44c2fd"))
+```
+
+```{r}
+#| echo: false
+#| warning: false
+
+#nube de palabras discurso 3
+
+wordcloud(palabras3.1$word,palabras1.1$n,scale=c(4,.1),random.order=FALSE,random.color=TRUE,rot.per=0.4,colors= c("gold"))
+```
