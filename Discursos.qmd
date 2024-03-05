@@ -128,7 +128,8 @@ GRAFICOS DESCRIPTIVOS
 #graficos descriptivos
 
 discursostodos <- rbind(palabras1,palabras2,palabras3)
-palabrastodos <- rbind(palabras1.1,palabras2.1,palabras3.1)
+palabrastodos <- rbind(palabras1.1,palabras2.1,palabras3.1) %>% 
+  arrange(desc(n))
 
 Tabla_1 <- discursostodos %>% 
   select(Autor) %>% 
@@ -157,6 +158,46 @@ Grafico1
 
 
 ```
+
+```{r}
+
+
+#graficos descriptivos (Palabra Deuda)
+
+discursostodos <- rbind(palabras1,palabras2,palabras3)
+palabrastodos <- rbind(palabras1.1,palabras2.1,palabras3.1)
+
+Tabla_1 <- discursostodos %>%
+  filter(palabra == "deuda") %>% 
+  select(Autor) %>% 
+  group_by(Autor) %>% 
+  summarise(palabras=n()) %>% 
+  arrange(Autor)
+
+
+Grafico_deuda <-  highchart() %>% 
+  hc_title(text="Cantidad de Palabras: deuda")%>%
+  hc_chart(type="bar") %>%
+  hc_xAxis(categories = Tabla_1$Autor) %>%
+  hc_add_series(Tabla_1$palabras, name="Palabras") %>% 
+  hc_plotOptions(
+    bar = list(
+      colorByPoint = TRUE,
+      colors = c("steelblue","gold","#7570b3")
+    )) %>% 
+  hc_credits(enabled = TRUE, text = "Elaboración propia en base a datos de  Casa Rosada.") %>% 
+  hc_legend(FALSE) 
+
+Grafico_deuda
+
+
+
+
+
+```
+
+
+
 
 ```{r}
 #| echo: false
@@ -270,4 +311,248 @@ Grafico4
 
 ```
 
-##Análisis de sentimiento
+## Análisis de sentimiento
+
+```{r}
+#| echo: false
+#| warning: false
+
+# Aplicamos el análisis de sentimientos a nivel de palabras (MILEI)
+sentimientos_mi <- get_nrc_sentiment(palabras1.1$word, lang="spanish")
+
+# Realizamos una unión entre los resultados del análisis de sentimientos y las palabras originales
+texto_p_mi <- rowid_to_column(palabras1.1, "ID")
+
+sentimientos_mi <- rowid_to_column(sentimientos_mi, "ID")
+
+texto_sentimientos_mi <- sentimientos_mi %>%
+  left_join(texto_p_mi)
+
+
+
+```
+
+```{r}
+#| echo: false
+#| warning: false
+
+#TOP 10 discurso 1 (MILEI) PALABRAS NEGATIVAS
+
+Tabla_neg_mi <- texto_sentimientos_mi %>% 
+  filter(negative > 0) %>% 
+  select(word,n) %>% 
+  head(10)
+
+Grafico_neg_mi <- highchart() %>%   
+  hc_title(text="Top 10 palabras negativas más utilizadas por Milei")%>%
+  hc_chart(type="bar") %>%
+  hc_xAxis(categories = Tabla_neg_mi$word) %>%
+  hc_add_series(Tabla_neg_mi$n, name="Palabras") %>% 
+  hc_plotOptions(
+    bar = list(
+      colorByPoint = TRUE
+    )) %>% 
+  hc_credits(enabled = TRUE, text = "Elaboración propia en base a datos de  Casa Rosada.") %>% 
+  hc_colors(color="#902e59") %>% 
+  hc_legend(FALSE)
+
+Grafico_neg_mi
+
+
+```
+
+
+
+```{r}
+#| echo: false
+#| warning: false
+
+#TOP 10 discurso 1 (MILEI) PALABRAS POSITIVAS
+
+Tabla_pos_mi <- texto_sentimientos_mi %>% 
+  filter(positive > 0) %>% 
+  select(word,n) %>% 
+  head(10)
+
+Grafico_pos_mi <- highchart() %>%   
+  hc_title(text="Top 10 palabras positivas más utilizadas por Milei")%>%
+  hc_chart(type="bar") %>%
+  hc_xAxis(categories = Tabla_pos_mi$word) %>%
+  hc_add_series(Tabla_pos_mi$n, name="Palabras") %>% 
+  hc_plotOptions(
+    bar = list(
+      colorByPoint = TRUE
+    )) %>% 
+  hc_credits(enabled = TRUE, text = "Elaboración propia en base a datos de  Casa Rosada.") %>% 
+  hc_colors(color="#52bfc1") %>% 
+  hc_legend(FALSE)
+
+Grafico_pos_mi
+
+
+```
+
+
+```{r}
+#| echo: false
+#| warning: false
+
+# Aplicamos el análisis de sentimientos a nivel de palabras (FERNANDEZ)
+sentimientos_fer <- get_nrc_sentiment(palabras2.1$word, lang="spanish")
+
+# Realizamos una unión entre los resultados del análisis de sentimientos y las palabras originales
+texto_p_fer <- rowid_to_column(palabras2.1, "ID")
+
+sentimientos_fer <- rowid_to_column(sentimientos_fer, "ID")
+
+texto_sentimientos_fer <- sentimientos_fer %>%
+  left_join(texto_p_fer)
+
+
+
+```
+
+```{r}
+#| echo: false
+#| warning: false
+
+#TOP 10 discurso 2 (FERNANDEZ) PALABRAS NEGATIVAS
+
+Tabla_neg_fer <- texto_sentimientos_fer %>% 
+  filter(negative > 0) %>% 
+  select(word,n) %>% 
+  head(10)
+
+Grafico_neg_fer <- highchart() %>%   
+  hc_title(text="Top 10 palabras negativas más utilizadas por Fernandez")%>%
+  hc_chart(type="bar") %>%
+  hc_xAxis(categories = Tabla_neg_fer$word) %>%
+  hc_add_series(Tabla_neg_fer$n, name="Palabras") %>% 
+  hc_plotOptions(
+    bar = list(
+      colorByPoint = TRUE
+    )) %>% 
+  hc_credits(enabled = TRUE, text = "Elaboración propia en base a datos de  Casa Rosada.") %>% 
+  hc_colors(color="#902e59") %>% 
+  hc_legend(FALSE)
+
+Grafico_neg_fer
+
+
+```
+
+
+
+```{r}
+#| echo: false
+#| warning: false
+
+#TOP 10 discurso 2 (FERNANDEZ) PALABRAS POSITIVAS
+
+Tabla_pos_fer <- texto_sentimientos_fer %>% 
+  filter(positive > 0) %>% 
+  select(word,n) %>% 
+  head(10)
+
+Grafico_pos_fer <- highchart() %>%   
+  hc_title(text="Top 10 palabras positivas más utilizadas por Fernandez")%>%
+  hc_chart(type="bar") %>%
+  hc_xAxis(categories = Tabla_pos_fer$word) %>%
+  hc_add_series(Tabla_pos_mi$n, name="Palabras") %>% 
+  hc_plotOptions(
+    bar = list(
+      colorByPoint = TRUE
+    )) %>% 
+  hc_credits(enabled = TRUE, text = "Elaboración propia en base a datos de  Casa Rosada.") %>% 
+  hc_colors(color="#52bfc1") %>% 
+  hc_legend(FALSE)
+
+Grafico_pos_fer
+
+
+```
+
+
+
+```{r}
+#| echo: false
+#| warning: false
+
+# Aplicamos el análisis de sentimientos a nivel de palabras (MACRI)
+sentimientos_ma<- get_nrc_sentiment(palabras3.1$word, lang="spanish")
+
+# Realizamos una unión entre los resultados del análisis de sentimientos y las palabras originales
+texto_p_ma<- rowid_to_column(palabras3.1, "ID")
+
+sentimientos_ma <- rowid_to_column(sentimientos_ma, "ID")
+
+texto_sentimientos_ma <- sentimientos_ma %>%
+  left_join(texto_p_ma)
+
+
+
+```
+
+
+
+
+```{r}
+#| echo: false
+#| warning: false
+
+#TOP 10 discurso 3 (MACRI) PALABRAS NEGATIVAS
+
+Tabla_neg_ma <- texto_sentimientos_ma %>% 
+  filter(negative > 0) %>% 
+  select(word,n) %>% 
+  head(10)
+
+Grafico_neg_ma <- highchart() %>%   
+  hc_title(text="Top 10 palabras negativas más utilizadas por Macri")%>%
+  hc_chart(type="bar") %>%
+  hc_xAxis(categories = Tabla_neg_ma$word) %>%
+  hc_add_series(Tabla_neg_ma$n, name="Palabras") %>% 
+  hc_plotOptions(
+    bar = list(
+      colorByPoint = TRUE
+    )) %>% 
+  hc_credits(enabled = TRUE, text = "Elaboración propia en base a datos de  Casa Rosada.") %>% 
+  hc_colors(color="#902e59") %>% 
+  hc_legend(FALSE)
+
+Grafico_neg_ma
+
+
+```
+
+
+
+```{r}
+#| echo: false
+#| warning: false
+
+#TOP 10 discurso 1 (MILEI) PALABRAS POSITIVAS
+
+Tabla_neg_ma <- texto_sentimientos_ma %>% 
+  filter(positive > 0) %>% 
+  select(word,n) %>% 
+  head(10)
+
+Grafico_neg_ma <- highchart() %>%   
+  hc_title(text="Top 10 palabras positivas más utilizadas por Macri")%>%
+  hc_chart(type="bar") %>%
+  hc_xAxis(categories = Tabla_neg_ma$word) %>%
+  hc_add_series(Tabla_neg_ma$n, name="Palabras") %>% 
+  hc_plotOptions(
+    bar = list(
+      colorByPoint = TRUE
+    )) %>% 
+  hc_credits(enabled = TRUE, text = "Elaboración propia en base a datos de  Casa Rosada.") %>% 
+  hc_colors(color="#902e59") %>% 
+  hc_legend(FALSE)
+
+Grafico_neg_ma
+
+
+```
+
